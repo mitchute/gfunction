@@ -5,7 +5,7 @@ include(CTest)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES src/main.cpp src/gfunction.cpp src/gfunction.hpp third_party/nlohmann/json.hpp)
+set(SOURCE_FILES src/gfunction.cpp src/gfunction.hpp third_party/nlohmann/json.hpp)
 
 include(DownloadProject.cmake)
 download_project(PROJ                googletest
@@ -20,5 +20,10 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 
-add_executable(gfunction ${SOURCE_FILES})
-target_link_libraries(gfunction gtest gmock_main)
+add_library(gfunction ${SOURCE_FILES})
+add_executable(gfunction_runner src/main.cpp)
+target_link_libraries(gfunction_runner gfunction)
+
+set(TEST_SOURCE_FILES tests/main.cpp tests/gfunction.unit.cpp)
+add_executable(gfunction_tests ${TEST_SOURCE_FILES})
+target_link_libraries(gfunction_tests gfunction gtest)

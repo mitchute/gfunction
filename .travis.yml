@@ -1,26 +1,30 @@
-sudo: required
-dist: trusty
-
 language: cpp
+matrix:
+  include:
+  - os: linux
+    name: Linux Release
+    sudo: required
+    before_script:
+      - mkdir build
+      - cd build
+      - cmake ..
+    script:
+      - cmake --build .
 
-addons:
-  packages:
-    - opensp
+  - os: osx
+    name: Mac Release
+    before_script:
+      - mkdir build
+      - cd build
+      - cmake ..
+    script:
+      - cmake --build .
 
-compiler:
-  - gcc
-  - g++
-  - clang
-  - osx
-  - linux
-
-before_script:
-  - mkdir build
-  - cd build
-  - cmake ..
-
-script:
-  - cmake --build .
-
-after_script:
-  - cmake --build . --target test
+  - os: windows
+    name: Windows Release
+    before_script:
+      - mkdir build
+      - cd build
+      - cmake ..
+    script:
+      - cmake --build .
