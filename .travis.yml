@@ -3,6 +3,10 @@ dist: trusty
 
 language: cpp
 
+addons:
+  packages:
+    - opensp
+
 compiler:
   - gcc
   - g++
