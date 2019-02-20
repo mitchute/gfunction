@@ -21,4 +21,4 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 
 add_executable(gfunction ${SOURCE_FILES})
-target_link_libraries(example gtest gmock_main)
+target_link_libraries(gfunction gtest gmock_main)
