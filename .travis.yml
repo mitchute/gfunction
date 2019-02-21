@@ -19,6 +19,8 @@ matrix:
       - cmake ..
     script:
       - cmake --build .
+    after_script:
+      - ./gfunction_tests
 
   - os: windows
     name: Windows Release
