@@ -86,6 +86,7 @@ matrix:
   - os: osx
     name: Mac Release
     script:
+      - cmake ..
       - cmake --build .
       - ./gfunction_tests
 
@@ -95,5 +96,6 @@ matrix:
   - os: windows
     name: Windows Release
     script:
+      - cmake ..
       - cmake --build .
       - ./Debug/gfunction_tests.exe
