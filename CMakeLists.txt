@@ -22,26 +22,6 @@ add_custom_target(
         COMMENT "running clang tidy"
 )
 
-# CppCheck
-list(APPEND CPPCHECK_ARGS
-        --enable=warning,style,performance,portability,unusedFunction
-        --std=c++11
-        --verbose
-        --error-exitcode=1
-        --language=c++
-        -DMAIN=main
-        -I ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/include/*.h
-        ${CMAKE_SOURCE_DIR}/src/*.cpp
-        ${CMAKE_SOURCE_DIR}/test/*.cpp
-        )
-
-add_custom_target(
-        check
-        COMMAND ${CMAKE_BINARY_DIR}/bin/cppcheck ${CPPCHECK_ARGS}
-        COMMENT "running cppcheck"
-)
-
 include(DownloadProject.cmake)
 download_project(PROJ                googletest
                  GIT_REPOSITORY      https://github.com/google/googletest.git

@@ -36,23 +36,6 @@ matrix:
         else
             echo -e "\033[1;32m\xE2\x9C\x93 passed:\033[0m $1";
         fi
-  #
-  # CppCheck
-  #
-  - os: linux
-    env:
-      - TEST="CppCheck"
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - gcc-6
-          - g++-6
-    script:
-      - cmake -DENABLE_CPPCHECK=ON -DCMAKE_CXX_COMPILER="g++-6" ..
-      - make
-      - make check
 
     #
     # Coveralls
