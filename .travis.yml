@@ -34,4 +34,4 @@ matrix:
       - cmake ..
     script:
       - cmake --build .
-      - ./gfunction_tests
+      - ./Debug/gfunction_tests.exe
