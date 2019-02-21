@@ -5,11 +5,16 @@ matrix:
     name: Linux Release
     sudo: required
     before_script:
+      - pip install --user cpp-coveralls
       - mkdir build
       - cd build
       - cmake ..
     script:
+      - CXX=/usr/bin/g++-6 CC=/usr/bin/gcc-6 cmake -DCOVERAGE=1 .
       - cmake --build .
+      - ./gfunction_tests
+    after_success:
+      - coveralls --root . -E ".*gtest.*" -E ".*CMakeFiles.*"
 
   - os: osx
     name: Mac Release
@@ -29,3 +34,4 @@ matrix:
       - cmake ..
     script:
       - cmake --build .
+      - ./gfunction_tests
