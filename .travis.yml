@@ -11,6 +11,7 @@ matrix:
   # Clang Tidy
   #
   - os: linux
+    name: Clang Tidy
     env:
       - TEST="Clang Tidy"
     addons:
@@ -41,6 +42,7 @@ matrix:
     # Coveralls
     #
   - os: linux
+    name: Linux Release + Coverage
     env:
       - TEST="Coveralls"
     addons:
