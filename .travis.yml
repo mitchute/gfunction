@@ -55,16 +55,12 @@ matrix:
     script:
       - pip install --upgrade --user git+git://github.com/eddyxu/cpp-coveralls.git
       - cmake -DENABLE_COVERAGE=ON -DCMAKE_CXX_COMPILER="g++-6" ..
-      - make
-      - make test
-      - cd ..
+      - cmake --build .
+      - ./gfunction_tests
       - |
-        coveralls --build-root build --gcov-options '\-lp' \
-          -e build/external \
-          -e build/include \
-          -e build/CMakeFiles/3.8.0 \
-          -e build/CMakeFiles/feature_tests.c \
-          -e build/CMakeFiles/feature_tests.cxx
+          coveralls --build-root build --gcov-options '\-lp' \
+            -e build/third_party \
+
     #
     # Mac
     #
