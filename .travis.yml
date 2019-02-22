@@ -58,7 +58,7 @@ matrix:
       - cmake --build .
       - ./gfunction_tests
       - coveralls --build-root build --gcov-options '\-lp' \
-            -e build/third_party
+            -e /third_party/*
 
     #
     # Mac
