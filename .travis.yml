@@ -57,9 +57,8 @@ matrix:
       - cmake -DENABLE_COVERAGE=ON -DCMAKE_CXX_COMPILER="g++-6" ..
       - cmake --build .
       - ./gfunction_tests
-      - |
-          coveralls --build-root build --gcov-options '\-lp' \
-            -e build/third_party \
+      - coveralls --build-root build --gcov-options '\-lp' \
+            -e build/third_party
 
     #
     # Mac
