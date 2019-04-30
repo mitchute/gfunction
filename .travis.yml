@@ -41,25 +41,25 @@ matrix:
     #
     # Coveralls
     #
-  - os: linux
-    name: Linux Release + Coverage
-    env:
-      - TEST="Coveralls"
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - gcc-6
-          - g++-6
-    script:
-      - pip install --upgrade --user git+git://github.com/eddyxu/cpp-coveralls.git
-      - cmake -DENABLE_COVERAGE=ON -DCMAKE_CXX_COMPILER="g++-6" ..
-      - cmake --build .
-      - ./gfunction_tests
-      - |
-          coveralls --build-root build --gcov-options '\-lp' \
-            -e build/third_party \
+#  - os: linux
+#    name: Linux Release + Coverage
+#    env:
+#      - TEST="Coveralls"
+#    addons:
+#      apt:
+#        sources:
+#          - ubuntu-toolchain-r-test
+#        packages:
+#          - gcc-6
+#          - g++-6
+#    script:
+#      - pip install --upgrade --user git+git://github.com/eddyxu/cpp-coveralls.git
+#      - cmake -DENABLE_COVERAGE=ON -DCMAKE_CXX_COMPILER="g++-6" ..
+#      - cmake --build .
+#      - ./gfunction_tests
+#      - |
+#          coveralls --build-root build --gcov-options '\-lp' \
+#            -e build/third_party \
 
     #
     # Mac
