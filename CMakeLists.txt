@@ -7,6 +7,21 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES src/gfunction.cpp src/gfunction.hpp third_party/nlohmann/json.hpp)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Clang Tidy
+list(APPEND RUN_CLANG_TIDY_BIN_ARGS
+        -clang-tidy-binary ${CLANG_TIDY_BIN}
+        -header-filter=.*
+        -checks=clan*,cert*,misc*,perf*,cppc*,read*,mode*,-cert-err58-cpp,-misc-noexcept-move-constructor
+        )
+
+add_custom_target(
+        tidy
+        COMMAND ${RUN_CLANG_TIDY_BIN} ${RUN_CLANG_TIDY_BIN_ARGS}
+        COMMENT "running clang tidy"
+)
+
 include(DownloadProject.cmake)
 download_project(PROJ                googletest
                  GIT_REPOSITORY      https://github.com/google/googletest.git
