@@ -33,3 +33,5 @@
 
 # CMake
 .idea/
+
+.DS_Store

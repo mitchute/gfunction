@@ -1,14 +1,20 @@
 {
-  "pi": 3.141,
-  "happy": true,
-  "name": "Niels",
-  "nothing": null,
-  "answer": {
-    "everything": 42
-  },
-  "list": [1, 0, 2],
-  "object": {
-    "currency": "USD",
-    "value": 42.99
-  }
+    "field 1": [
+        {
+            "x": 0,
+            "y": 0,
+            "z": 1,
+            "theta": 0,
+            "phi": 0,
+            "h": 100
+        },
+        {
+            "x": 0,
+            "y": 1,
+            "z": 1,
+            "theta": 0,
+            "phi": 0,
+            "h": 100
+        }
+    ]
 }
