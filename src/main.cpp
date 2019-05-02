@@ -15,23 +15,30 @@ using json = nlohmann::json;
 
 int main(int argc, char *argv[])
 {
-	// read input file
-	std::string ifPath = argv[1];
-	std::ifstream t(ifPath);
-	std::stringstream buffer;
-	buffer << t.rdbuf();
+    // read input file
+    std::string ifPath = argv[1];
+    std::ifstream t(ifPath);
+    std::stringstream buffer;
+    buffer << t.rdbuf();
 
-	// read json input data
-	auto j = json::parse(buffer.str());
+    // read json input data
+    auto j = json::parse(buffer.str());
 
-	// init the UHF g-function class
-	auto gFuncs = new gfunction::UHFgFunctions();
+    // UHF g-function instance
+    gfunction::UHFgFunctions gFuncs;
 
-	// build the borehole fields
-	int numFields = j.size();
-	for (int idx = 0; idx < numFields; ++idx) {
-        auto a = new gfunction::GHEField();
-        gFuncs->Fields.push_back(a.buildField());
+    // build the borehole fields
+    if (!j.empty()) {
+        for (auto& arr : j.items()) {
+            // build-out field
+            gfunction::GHEField field;
+            field.buildField(arr.key(), arr.value());
+            gFuncs.fields.push_back(field);
+        }
+
+        gFuncs.calcGFunctions();
+
     }
+
     return 0;
 }
