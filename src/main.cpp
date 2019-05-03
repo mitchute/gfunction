@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     gfunction::UHFgFunctions gFuncs;
 
     // init UHF g-functions
-    gFuncs.buildUHF(j["self"], j["cross"]);
+    gFuncs.buildUHF(j);
 
     // compute UHF g-functions
     gFuncs.calc_gFunctions();

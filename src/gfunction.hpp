@@ -13,21 +13,49 @@ using json = nlohmann::json;
 
 namespace gfunction {
 
-    struct SingleBorehole {
+    struct CartPoint {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+
+        // default constructor
+        CartPoint() = default;
+
+        // destructor
+        ~CartPoint() = default;
+    };
+
+    struct Props {
+        double diffusivity = 0;
+
+        // default constructor
+        Props() = default;
+
+        // destructor
+        ~Props() = default;
+    };
+
+    struct Borehole {
 
         // member variables
-        int field_no = 0;
-        int bh_no = 0;
+        int fieldNo = 0;
+        int bhNo = 0;
         double x = 0;
         double y = 0;
         double z = 0;
         double h = 0;
         double d = 0;
+        double dl_i;
+        double dl_ii;
+        double dl_j;
+        std::vector<CartPoint> ptLocs_i;
+        std::vector<CartPoint> ptLocs_ii;
+        std::vector<CartPoint> ptLocs_j;
 
         // constructor
-        SingleBorehole(int _field_no, int _bh_no, double _x, double _y, double _z, double _h, double _d) {
-            field_no = _field_no;
-            bh_no = _bh_no;
+        Borehole(int _fieldNo, int _bhNo, double _x, double _y, double _z, double _h, double _d) {
+            fieldNo = _fieldNo;
+            bhNo = _bhNo;
             x = _x;
             y = _y;
             z = _z;
@@ -36,31 +64,24 @@ namespace gfunction {
         }
 
         // default constructor
-        SingleBorehole() = default;
+        Borehole() = default;
 
         // destructor
-        ~SingleBorehole() = default;
-    };
+        ~Borehole() = default;
 
-    struct GHEField {
-        std::string name;
-        int field_no = 0;
-        double h_total = 0;
-        std::vector<std::shared_ptr<gfunction::SingleBorehole>> boreholes;
-
-        // default constructor
-        GHEField() = default; 
-
-        // destructor
-        ~GHEField() = default;
-        
         // member functions
-        std::shared_ptr<GHEField> buildField(const std::string _name, const json &_arr);
+        std::vector<double> calcDistances(CartPoint const &point_i, CartPoint const &point_j);
     };
 
     struct UHFgFunctions {
-        std::shared_ptr<GHEField> selfField;
-        std::shared_ptr<GHEField> crossField;
+        std::vector<Borehole> boreholes;
+        Props soil;
+        double len_self = 0;
+        double len_cross = 0;
+        std::vector<double> gfcn_self;
+        std::vector<double> gfcn_self_to_cross;
+        std::vector<double> gfcn_cross;
+        std::vector<double> gfcn_cross_to_self;
 
         // default constructor
         UHFgFunctions() = default;
@@ -69,7 +90,11 @@ namespace gfunction {
         ~UHFgFunctions() = default;
 
         // member functions
-        void buildUHF(const json& _j_self, const json& _j_cross);
+        void buildUHF(const json& _j_cross);
+        std::vector<double> distances(CartPoint const point_i, CartPoint const point_j);
+        double calcResponse(std::vector<double> const dists, double const currTime);
+        double integral(CartPoint const point_i, Borehole const bh_j, double const currTime);
+        double doubleIntegral(Borehole const bh_i, Borehole const bh_j, double const currTime);
         void calc_gFunctions();
     };
 }
