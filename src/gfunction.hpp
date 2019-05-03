@@ -15,14 +15,19 @@ namespace gfunction {
 
     struct SingleBorehole {
 
-        double x;
-        double y;
-        double z;
-        double h;
-        double d;
+        // member variables
+        int field_no = 0;
+        int bh_no = 0;
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        double h = 0;
+        double d = 0;
 
         // constructor
-        SingleBorehole(double _x, double _y, double _z, double _h, double _d) {
+        SingleBorehole(int _field_no, int _bh_no, double _x, double _y, double _z, double _h, double _d) {
+            field_no = _field_no;
+            bh_no = _bh_no;
             x = _x;
             y = _y;
             z = _z;
@@ -31,8 +36,7 @@ namespace gfunction {
         }
 
         // default constructor
-        SingleBorehole() :
-            x(0), y(0), z(0), h(0), d(0) {}
+        SingleBorehole() = default;
 
         // destructor
         ~SingleBorehole() = default;
@@ -40,21 +44,33 @@ namespace gfunction {
 
     struct GHEField {
         std::string name;
-        std::vector<SingleBorehole> boreholes;
+        int field_no = 0;
+        double h_total = 0;
+        std::vector<std::shared_ptr<gfunction::SingleBorehole>> boreholes;
 
-        void buildField(const json& name, const json &arr);
+        // default constructor
+        GHEField() = default; 
 
         // destructor
         ~GHEField() = default;
+        
+        // member functions
+        std::shared_ptr<GHEField> buildField(const std::string _name, const json &_arr);
     };
 
     struct UHFgFunctions {
-        std::vector<GHEField> fields;
+        std::shared_ptr<GHEField> selfField;
+        std::shared_ptr<GHEField> crossField;
 
-        void calcGFunctions();
+        // default constructor
+        UHFgFunctions() = default;
 
         // destructor
         ~UHFgFunctions() = default;
+
+        // member functions
+        void buildUHF(const json& _j_self, const json& _j_cross);
+        void calc_gFunctions();
     };
 }
 #endif // !gfunction

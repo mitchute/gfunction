@@ -27,18 +27,11 @@ int main(int argc, char *argv[])
     // UHF g-function instance
     gfunction::UHFgFunctions gFuncs;
 
-    // build the borehole fields
-    if (!j.empty()) {
-        for (auto& arr : j.items()) {
-            // build-out field
-            gfunction::GHEField field;
-            field.buildField(arr.key(), arr.value());
-            gFuncs.fields.push_back(field);
-        }
+    // init UHF g-functions
+    gFuncs.buildUHF(j["self"], j["cross"]);
 
-        gFuncs.calcGFunctions();
-
-    }
+    // compute UHF g-functions
+    gFuncs.calc_gFunctions();
 
     return 0;
 }
