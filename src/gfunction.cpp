@@ -19,10 +19,10 @@ namespace gfunction {
 
     inline bool isEven(int const val)
     {
-        if (val % 2 == 0) {
-            return true;
-        } else {
+        if (val % 2) {
             return false;
+        } else {
+            return true;
         }
     }
 
@@ -36,34 +36,37 @@ namespace gfunction {
         return retVect;
     }
 
-    std::vector<double> Borehole::calcDistances(CartPoint const& point_i, CartPoint const& point_j) {
-        std::vector<double> sumVals;
+    std::vector<double> calcDistances(CartPoint const &point_i, CartPoint const &point_j) {
+
+        std::vector<double> sumValues;
 
         // Calculate the distance between points
-        sumVals.push_back(pow(point_i.x - point_j.x, 2.0));
-        sumVals.push_back(pow(point_i.y - point_j.y, 2.0));
-        sumVals.push_back(pow(point_i.z - point_j.z, 2.0));
+        sumValues.push_back(pow(point_i.x - point_j.x, 2.0));
+        sumValues.push_back(pow(point_i.y - point_j.y, 2.0));
+        sumValues.push_back(pow(point_i.z - point_j.z, 2.0));
 
         double sumTot = 0;
-        std::vector<double> retVals;
-        std::for_each(sumVals.begin(), sumVals.end(), [&](double n) { sumTot += n; });
-        retVals.push_back(std::sqrt(sumTot));
+        std::vector<double> returnValues;
+        std::for_each(sumValues.begin(), sumValues.end(), [&](double n) { sumTot += n; });
+        returnValues.push_back(std::sqrt(sumTot));
 
         // Calculate distance to mirror point
-        sumVals.pop_back();
-        sumVals.push_back(pow(point_i.z - (-point_j.z), 2.0));
+        sumValues.pop_back();
+        sumValues.push_back(pow(point_i.z - (-point_j.z), 2.0));
 
         sumTot = 0;
-        std::for_each(sumVals.begin(), sumVals.end(), [&](double n) { sumTot += n; });
-        retVals.push_back(std::sqrt(sumTot));
+        std::for_each(sumValues.begin(), sumValues.end(), [&](double n) { sumTot += n; });
+        returnValues.push_back(std::sqrt(sumTot));
 
-        return retVals;
+        return returnValues;
     }
 
     void UHFgFunctions::buildUHF(const json& _j) {
         
         int numBH = 0;
         int fieldNo = 0;
+
+        cout << "Building self-field\n" << std::endl;
 
         // build self-field
         for (auto data : _j["self"]) {
@@ -79,6 +82,9 @@ namespace gfunction {
             ++numBH;
         }
 
+        cout << "....Finished\n" << std::endl;
+        cout << "Building cross-field\n" << std::endl;
+
         // build cross-field
         for (auto data : _j["cross"]) {
             auto x = static_cast<double>(data["x"]);
@@ -86,14 +92,19 @@ namespace gfunction {
             auto z = static_cast<double>(data["z"]);
             auto d = static_cast<double>(data["d"]);
             auto h = static_cast<double>(data["h"]);
+            fieldNo = 1;
             auto bh = Borehole(fieldNo, numBH, x, y, z, h, d);
             this->boreholes.push_back(bh);
             this->len_cross += h;
             ++numBH;
         }
 
+        cout << "....Finished\n" << std::endl;
+
         // soil data
         this->soil.diffusivity = _j["soil"]["diffusivity"];
+
+        cout << "Computing g-functions\n" << std::endl;
         
         // Using Simpson's rule the number of points (n+1) must be odd, therefore an even number of panels is required
         // Starting from i = 0 to i <= NumPanels produces an odd number of points
@@ -131,32 +142,9 @@ namespace gfunction {
                 bh->ptLocs_j.push_back(newPoint);
             }
         }
+
+        cout << "....Finished\n" << std::endl;
     };
-
-    std::vector<double> UHFgFunctions::distances(CartPoint const point_i, CartPoint const point_j) {
-
-        std::vector<double> sumVals;
-
-        // Calculate the distance between points
-        sumVals.push_back(pow(point_i.x - point_j.x, 2.0));
-        sumVals.push_back(pow(point_i.y - point_j.y, 2.0));
-        sumVals.push_back(pow(point_i.z - point_j.z, 2.0));
-
-        double sumTot = 0;
-        std::vector<double> retVals;
-        std::for_each(sumVals.begin(), sumVals.end(), [&](double n) { sumTot += n; });
-        retVals.push_back(std::sqrt(sumTot));
-
-        // Calculate distance to mirror point
-        sumVals.pop_back();
-        sumVals.push_back(pow(point_i.z - (-point_j.z), 2.0));
-
-        sumTot = 0;
-        std::for_each(sumVals.begin(), sumVals.end(), [&](double n) { sumTot += n; });
-        retVals.push_back(std::sqrt(sumTot));
-
-        return retVals;
-    }
 
     double UHFgFunctions::calcResponse(std::vector<double> const dists, double const currTime)
     {
@@ -165,25 +153,23 @@ namespace gfunction {
 
         try {
             pointToPointResponse = erfc(dists[0] / (2 * sqrt(soil.diffusivity * currTime))) / dists[0];
-        }
-        catch (const std::exception & e) {
+        } catch (const std::exception & e) {
             pointToPointResponse = 0;
         }
 
         try {
             pointToReflectedResponse = erfc(dists[1] / (2 * sqrt(soil.diffusivity * currTime))) / dists[1];
-        }
-        catch (const std::exception & e) {
+        } catch (const std::exception & e) {
             pointToReflectedResponse = 0;
         }
 
         return pointToPointResponse - pointToReflectedResponse;
     }
 
-    double UHFgFunctions::integral(CartPoint const point_i, Borehole const bh_j, double const currTime) {
+    double UHFgFunctions::integral(CartPoint const &point_i, Borehole const &bh_j, double const &currTime) {
 
         // This code could be optimized in a number of ways.
-        // The first, most simple way would be to precompute the distances from point i to point j, then store them for reuse.
+        // The first, most simple way would be to pre-compute the distances from point i to point j, then store them for reuse.
         // The second, more intensive method would be to break the calcResponse calls out into four different parts.
         // The first point, last point, odd points, and even points. Then multiply the odd/even points by their respective coefficient for the
         // Simpson's method. After that, all points are summed together and divided by 3.
@@ -192,7 +178,7 @@ namespace gfunction {
         int index = 0;
         size_t const lastIndex_j = bh_j.ptLocs_j.size() - 1;
         for (auto& point_j : bh_j.ptLocs_j) {
-            std::vector<double> dists = distances(point_i, point_j);
+            std::vector<double> dists = calcDistances(point_i, point_j);
             double const f = calcResponse(dists, currTime);
 
             // Integrate using Simpson's
@@ -210,7 +196,7 @@ namespace gfunction {
         return (bh_j.dl_j / 3.0) * sum_f;
     }
 
-    double UHFgFunctions::doubleIntegral(Borehole const bh_i, Borehole const bh_j, double const currTime) {
+    double UHFgFunctions::doubleIntegral(Borehole const &bh_i, Borehole const &bh_j, double const &currTime) {
 
         // Similar optimizations as discussed above could happen here
 
@@ -260,7 +246,7 @@ namespace gfunction {
 
     void UHFgFunctions::calc_gFunctions() {
 
-        cout << "Computing self-g-functions" << std::endl;
+        cout << "Computing g-functions\n" << std::endl;
         
         // time constant
         double ts = pow(this->len_self, 2.0) / (9.0 * this->soil.diffusivity);
@@ -284,9 +270,9 @@ namespace gfunction {
 
         // compute the responses
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
-            for (auto& bh_i : boreholes) {
+            for (auto &bh_i : boreholes) {
                 int i_field = bh_i.fieldNo;
-                for (auto& bh_j : boreholes) {
+                for (auto &bh_j : boreholes) {
                     int j_field = bh_j.fieldNo;
                     double sum_T_j = doubleIntegral(bh_i, bh_j, time[idx]);
                     if ((i_field == 0) && (j_field == 0)) {
