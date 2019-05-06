@@ -78,6 +78,7 @@ namespace gfunction {
         Props soil;
         double len_self = 0;
         double len_cross = 0;
+        std::vector<double> lntts;
         std::vector<double> gfcn_self;
         std::vector<double> gfcn_self_to_cross;
         std::vector<double> gfcn_cross;
@@ -96,6 +97,7 @@ namespace gfunction {
         double integral(CartPoint const point_i, Borehole const bh_j, double const currTime);
         double doubleIntegral(Borehole const bh_i, Borehole const bh_j, double const currTime);
         void calc_gFunctions();
+        void write_gFunctions(const std::string &fpath);
     };
 }
 #endif // !gfunction

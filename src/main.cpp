@@ -1,5 +1,6 @@
 // C++ headers
 # include <iostream>
+# include <exception>
 # include <fstream>
 # include <sstream>
 
@@ -17,7 +18,8 @@ int main(int argc, char *argv[])
 {
     // read input file
     std::string ifPath = argv[1];
-    std::ifstream t(ifPath);
+    std::string ifName = argv[2];
+    std::ifstream t(ifPath + ifName);
     std::stringstream buffer;
     buffer << t.rdbuf();
 
@@ -32,6 +34,9 @@ int main(int argc, char *argv[])
 
     // compute UHF g-functions
     gFuncs.calc_gFunctions();
+
+    // write to the file
+    gFuncs.write_gFunctions(ifPath + "out.csv");
 
     return 0;
 }

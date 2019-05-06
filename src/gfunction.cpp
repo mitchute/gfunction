@@ -1,6 +1,7 @@
 // C++ headers
 # include <iostream>
-#include <exception>
+# include <fstream>
+# include <exception>
 # include <stdio.h>
 # include <vector>
 
@@ -67,11 +68,11 @@ namespace gfunction {
         // build self-field
         for (auto data : _j["self"]) {
             // build borehole instance
-            double x = static_cast<double>(data["x"]);
-            double y = static_cast<double>(data["y"]);
-            double z = static_cast<double>(data["z"]);
-            double d = static_cast<double>(data["d"]);
-            double h = static_cast<double>(data["h"]);
+            auto x = static_cast<double>(data["x"]);
+            auto y = static_cast<double>(data["y"]);
+            auto z = static_cast<double>(data["z"]);
+            auto d = static_cast<double>(data["d"]);
+            auto h = static_cast<double>(data["h"]);
             auto bh = Borehole(fieldNo, numBH, x, y, z, h, d);
             this->boreholes.push_back(bh);
             this->len_self += h;
@@ -80,11 +81,11 @@ namespace gfunction {
 
         // build cross-field
         for (auto data : _j["cross"]) {
-            double x = static_cast<double>(data["x"]);
-            double y = static_cast<double>(data["y"]);
-            double z = static_cast<double>(data["z"]);
-            double d = static_cast<double>(data["d"]);
-            double h = static_cast<double>(data["h"]);
+            auto x = static_cast<double>(data["x"]);
+            auto y = static_cast<double>(data["y"]);
+            auto z = static_cast<double>(data["z"]);
+            auto d = static_cast<double>(data["d"]);
+            auto h = static_cast<double>(data["h"]);
             auto bh = Borehole(fieldNo, numBH, x, y, z, h, d);
             this->boreholes.push_back(bh);
             this->len_cross += h;
@@ -93,11 +94,6 @@ namespace gfunction {
 
         // soil data
         this->soil.diffusivity = _j["soil"]["diffusivity"];
-
-        // setup borehole integration point locations
-        int numBH_i_points = 50;
-        int numBH_ii_points = 50;
-        int numBH_j_points = 560;
         
         // Using Simpson's rule the number of points (n+1) must be odd, therefore an even number of panels is required
         // Starting from i = 0 to i <= NumPanels produces an odd number of points
@@ -202,11 +198,9 @@ namespace gfunction {
             // Integrate using Simpson's
             if (index == 0 || index == lastIndex_j) {
                 sum_f += f;
-            }
-            else if (isEven(index)) {
+            } else if (isEven(index)) {
                 sum_f += 2 * f;
-            }
-            else {
+            } else {
                 sum_f += 4 * f;
             }
 
@@ -272,11 +266,13 @@ namespace gfunction {
         double ts = pow(this->len_self, 2.0) / (9.0 * this->soil.diffusivity);
 
         // log(t/ts)
-        std::vector<double> lntts = linspace(-8.5, 3.5, 0.5);
+        this->lntts = linspace(-8.5, 3.5, 0.5);
 
         // time in seconds
         std::vector<double> time;
-        for (auto it = lntts.begin(); it != lntts.end(); ++it) {
+        auto start = lntts.begin();
+        auto end = lntts.end();
+        for (auto it = start; it != end; ++it) {
             time.push_back(std::exp(*it) * ts);
         }
 
@@ -287,7 +283,7 @@ namespace gfunction {
         this->gfcn_cross_to_self = std::vector<double> (time.size(), 0.0);
 
         // compute the responses
-        for (size_t idx = 1; idx <= lntts.size(); ++idx) {
+        for (size_t idx = 0; idx < lntts.size(); ++idx) {
             for (auto& bh_i : boreholes) {
                 int i_field = bh_i.fieldNo;
                 for (auto& bh_j : boreholes) {
@@ -307,11 +303,30 @@ namespace gfunction {
         }
 
         // convert to g-functions
-        for (size_t idx = 1; idx <= lntts.size(); ++idx) {
+        for (size_t idx = 0; idx < lntts.size(); ++idx) {
             gfcn_self[idx] /= (2 * len_self);
             gfcn_self_to_cross[idx] /= (2 * len_cross);
             gfcn_cross[idx] /= (2 * len_self);
             gfcn_cross_to_self[idx] /= (2 * len_cross);
         }
+    }
+
+    void UHFgFunctions::write_gFunctions(const std::string &fpath) {
+        ofstream outfile;
+        outfile.open(fpath);
+
+        // header
+        outfile << "LNTTS,g_self,g_self-to-cross,g_cross,g_cross-to-self\n";
+
+        // write data
+        for (size_t idx = 0; idx < gfcn_self.size(); ++idx) {
+            outfile << lntts[idx] << ",";
+            outfile << gfcn_self[idx] << ",";
+            outfile << gfcn_self_to_cross[idx] << ",";
+            outfile << gfcn_cross[idx] << ",";
+            outfile << gfcn_cross_to_self[idx] << "\n";
+        }
+
+        outfile.close();
     }
 }
