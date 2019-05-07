@@ -72,9 +72,12 @@ namespace gfunction {
             auto d = static_cast<double>(data["d"]);
             auto h = static_cast<double>(data["h"]);
             auto bh = Borehole(x, y, z, h, d);
-            this->boreholes.push_back(bh);
-            this->length += h;
+            boreholes.push_back(bh);
+            totBHLength += h;
+            ++numBH;
         }
+
+        aveBHLength = totBHLength / numBH;
 
         // Using Simpson's rule the number of points (n+1) must be odd, therefore an even number of panels is required
         // Starting from i = 0 to i <= NumPanels produces an odd number of points
@@ -82,7 +85,7 @@ namespace gfunction {
         int numPanels_ii = 50;
         int numPanels_j = 560;
 
-        for (auto bh = this->boreholes.begin(); bh != this->boreholes.end(); ++bh) {
+        for (auto bh = boreholes.begin(); bh != boreholes.end(); ++bh) {
 
             bh->dl_i = bh->h / numPanels_i;
             for (int i = 0; i <= numPanels_i; ++i) {
@@ -117,17 +120,29 @@ namespace gfunction {
     void UHFgFunctions::buildUHF(const json &_j) {
         
         // build "self" field
-        cout << "Building self-field\n" << std::endl;
-        this->selfField.buildField(_j["self"]);
-        cout << "....Finished\n" << std::endl;
+        cout << "Building self-field" << std::endl;
+        selfField.buildField(_j["self"]);
+        cout << "....Finished" << std::endl;
 
         // build "cross" field
-        cout << "Building cross-field\n" << std::endl;
-        this->selfField.buildField(_j["cross"]);
-        cout << "....Finished\n" << std::endl;
+        cout << "Building cross-field" << std::endl;
+        crossField.buildField(_j["cross"]);
+        cout << "....Finished" << std::endl;
+
+        // setup numbers
+        int numBH = 0;
+        for (int idx = 0; idx != selfField.boreholes.size(); ++idx) {
+            selfField.boreholes[idx].bhNo = numBH;
+            ++numBH;
+        }
+
+        for (int idx = 0; idx != crossField.boreholes.size(); ++idx) {
+            crossField.boreholes[idx].bhNo = numBH;
+            ++numBH;
+        }
 
         // soil data
-        this->soil.diffusivity = _j["soil"]["diffusivity"];
+        soil.diffusivity = _j["soil"]["diffusivity"];
     }
 
     double UHFgFunctions::calcResponse(std::vector<double> const &dists, double const &currTime)
@@ -231,7 +246,7 @@ namespace gfunction {
     void UHFgFunctions::calc_gFunctions() {
         
         // time constant
-        double ts = pow(this->selfField.length, 2.0) / (9.0 * this->soil.diffusivity);
+        double ts = pow(selfField.aveBHLength, 2.0) / (9.0 * soil.diffusivity);
 
         // log(t/ts)
         lntts = linspace(-8.5, 3.5, 0.5);
@@ -249,7 +264,7 @@ namespace gfunction {
         gfcnCross = std::vector<double> (time.size(), 0.0);
 
         // compute self responses
-        cout << "Computing self-g-functions\n" << std::endl;
+        cout << "Computing self-g-functions" << std::endl;
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
             for (auto &bh_i : selfField.boreholes) {
                 for (auto &bh_j : selfField.boreholes) {
@@ -259,10 +274,10 @@ namespace gfunction {
         }
 
         // compute cross responses
-        cout << "Computing cross-g-functions\n" << std::endl;
+        cout << "Computing cross-g-functions" << std::endl;
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
-            for (auto& bh_i : selfField.boreholes) {
-                for (auto& bh_j : crossField.boreholes) {
+            for (auto &bh_i : selfField.boreholes) {
+                for (auto &bh_j : crossField.boreholes) {
                     gfcnCross[idx] += doubleIntegral(bh_i, bh_j, time[idx]);
                 }
             }
@@ -270,16 +285,16 @@ namespace gfunction {
 
         // convert to g-functions
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
-            gfcnSelf[idx] /= (2 * selfField.length);
-            gfcnCross[idx] /= (2 * crossField.length);
+            gfcnSelf[idx] /= (2 * selfField.totBHLength);
+            gfcnCross[idx] /= (2 * crossField.totBHLength);
         }
 
-        cout << "....Finished\n" << std::endl;
+        cout << "....Finished" << std::endl;
     }
 
-    void UHFgFunctions::write_gFunctions(const std::string &fpath) {
+    void UHFgFunctions::write_gFunctions(const std::string &_fpath) {
         ofstream outfile;
-        outfile.open(fpath);
+        outfile.open(_fpath);
 
         // header
         outfile << "LNTTS,g_self,g_cross\n";

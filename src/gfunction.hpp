@@ -38,7 +38,6 @@ namespace gfunction {
     struct Borehole {
 
         // member variables
-        int fieldNo = 0;
         int bhNo = 0;
         double x = 0;
         double y = 0;
@@ -70,8 +69,10 @@ namespace gfunction {
     };
 
     struct Field {
+        int numBH = 0;
         std::vector<Borehole> boreholes;
-        double length = 0;
+        double totBHLength = 0;
+        double aveBHLength = 0;
 
         // default constructor
         Field() = default;
