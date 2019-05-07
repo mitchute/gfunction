@@ -5,7 +5,11 @@ include(CTest)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES src/gfunction.cpp src/gfunction.hpp third_party/nlohmann/json.hpp)
+set(SOURCE_FILES src/gfunction.cpp
+                 src/gfunction.hpp
+                 src/FileSystem.cpp
+                 src/FileSystem.hpp
+                 third_party/nlohmann/json.hpp)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
