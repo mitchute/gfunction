@@ -61,49 +61,21 @@ namespace gfunction {
         return returnValues;
     }
 
-    void UHFgFunctions::buildUHF(const json& _j) {
+    void Field::buildField(const json &_j) {
         
-        int numBH = 0;
-        int fieldNo = 0;
-
-        cout << "Building 'self' field\n" << std::endl;
-
-        // build self-field
-        for (auto data : _j["self"]) {
+        // build boreholes
+        for (auto data : _j) {
             // build borehole instance
             auto x = static_cast<double>(data["x"]);
             auto y = static_cast<double>(data["y"]);
             auto z = static_cast<double>(data["z"]);
             auto d = static_cast<double>(data["d"]);
             auto h = static_cast<double>(data["h"]);
-            auto bh = Borehole(fieldNo, numBH, x, y, z, h, d);
+            auto bh = Borehole(x, y, z, h, d);
             this->boreholes.push_back(bh);
-            this->len_self += h;
-            ++numBH;
+            this->length += h;
         }
 
-        cout << "....Finished\n" << std::endl;
-        cout << "Building 'cross' field\n" << std::endl;
-
-        // build cross-field
-        for (auto data : _j["cross"]) {
-            auto x = static_cast<double>(data["x"]);
-            auto y = static_cast<double>(data["y"]);
-            auto z = static_cast<double>(data["z"]);
-            auto d = static_cast<double>(data["d"]);
-            auto h = static_cast<double>(data["h"]);
-            fieldNo = 1;
-            auto bh = Borehole(fieldNo, numBH, x, y, z, h, d);
-            this->boreholes.push_back(bh);
-            this->len_cross += h;
-            ++numBH;
-        }
-
-        cout << "....Finished\n" << std::endl;
-
-        // soil data
-        this->soil.diffusivity = _j["soil"]["diffusivity"];
-        
         // Using Simpson's rule the number of points (n+1) must be odd, therefore an even number of panels is required
         // Starting from i = 0 to i <= NumPanels produces an odd number of points
         int numPanels_i = 50;
@@ -140,6 +112,22 @@ namespace gfunction {
                 bh->ptLocs_j.push_back(newPoint);
             }
         }
+    }
+
+    void UHFgFunctions::buildUHF(const json &_j) {
+        
+        // build "self" field
+        cout << "Building self-field\n" << std::endl;
+        this->selfField.buildField(_j["self"]);
+        cout << "....Finished\n" << std::endl;
+
+        // build "cross" field
+        cout << "Building cross-field\n" << std::endl;
+        this->selfField.buildField(_j["cross"]);
+        cout << "....Finished\n" << std::endl;
+
+        // soil data
+        this->soil.diffusivity = _j["soil"]["diffusivity"];
     }
 
     double UHFgFunctions::calcResponse(std::vector<double> const &dists, double const &currTime)
@@ -241,14 +229,12 @@ namespace gfunction {
     }
 
     void UHFgFunctions::calc_gFunctions() {
-
-        cout << "Computing g-functions\n" << std::endl;
         
         // time constant
-        double ts = pow(this->len_self, 2.0) / (9.0 * this->soil.diffusivity);
+        double ts = pow(this->selfField.length, 2.0) / (9.0 * this->soil.diffusivity);
 
         // log(t/ts)
-        this->lntts = linspace(-8.5, 3.5, 0.5);
+        lntts = linspace(-8.5, 3.5, 0.5);
 
         // time in seconds
         std::vector<double> time;
@@ -259,37 +245,33 @@ namespace gfunction {
         }
 
         // g-function values
-        this->gfcn_self = std::vector<double> (time.size(), 0.0);
-        this->gfcn_self_to_cross = std::vector<double> (time.size(), 0.0);
-        this->gfcn_cross = std::vector<double> (time.size(), 0.0);
-        this->gfcn_cross_to_self = std::vector<double> (time.size(), 0.0);
+        gfcnSelf = std::vector<double> (time.size(), 0.0);
+        gfcnCross = std::vector<double> (time.size(), 0.0);
 
-        // compute the responses
+        // compute self responses
+        cout << "Computing self-g-functions\n" << std::endl;
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
-            for (auto &bh_i : boreholes) {
-                int i_field = bh_i.fieldNo;
-                for (auto &bh_j : boreholes) {
-                    int j_field = bh_j.fieldNo;
-                    double sum_T_j = doubleIntegral(bh_i, bh_j, time[idx]);
-                    if ((i_field == 0) && (j_field == 0)) {
-                        gfcn_self[idx] += sum_T_j;
-                    } else if ((i_field == 1) && (j_field == 1)) {
-                        gfcn_cross[idx] += sum_T_j;
-                    } else if ((i_field == 0) && (j_field == 1)) {
-                        gfcn_self_to_cross[idx] += sum_T_j;
-                    } else if ((i_field == 1) && (j_field == 0)) {
-                        gfcn_cross_to_self[idx] += sum_T_j;
-                    }
+            for (auto &bh_i : selfField.boreholes) {
+                for (auto &bh_j : selfField.boreholes) {
+                    gfcnSelf[idx] += doubleIntegral(bh_i, bh_j, time[idx]);
+                }
+            }
+        }
+
+        // compute cross responses
+        cout << "Computing cross-g-functions\n" << std::endl;
+        for (size_t idx = 0; idx < lntts.size(); ++idx) {
+            for (auto& bh_i : selfField.boreholes) {
+                for (auto& bh_j : crossField.boreholes) {
+                    gfcnCross[idx] += doubleIntegral(bh_i, bh_j, time[idx]);
                 }
             }
         }
 
         // convert to g-functions
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
-            gfcn_self[idx] /= (2 * len_self);
-            gfcn_cross[idx] /= (2 * len_cross);
-            gfcn_self_to_cross[idx] /= (2 * len_cross);
-            gfcn_cross_to_self[idx] /= (2 * len_self);
+            gfcnSelf[idx] /= (2 * selfField.length);
+            gfcnCross[idx] /= (2 * crossField.length);
         }
 
         cout << "....Finished\n" << std::endl;
@@ -300,15 +282,13 @@ namespace gfunction {
         outfile.open(fpath);
 
         // header
-        outfile << "LNTTS,g_self,g_self-to-cross,g_cross,g_cross-to-self\n";
+        outfile << "LNTTS,g_self,g_cross\n";
 
         // write data
-        for (size_t idx = 0; idx < gfcn_self.size(); ++idx) {
+        for (size_t idx = 0; idx < lntts.size(); ++idx) {
             outfile << lntts[idx] << ",";
-            outfile << gfcn_self[idx] << ",";
-            outfile << gfcn_self_to_cross[idx] << ",";
-            outfile << gfcn_cross[idx] << ",";
-            outfile << gfcn_cross_to_self[idx] << "\n";
+            outfile << gfcnSelf[idx] << ",";
+            outfile << gfcnCross[idx] << "\n";
         }
 
         outfile.close();
