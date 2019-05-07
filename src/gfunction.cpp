@@ -66,7 +66,7 @@ namespace gfunction {
         int numBH = 0;
         int fieldNo = 0;
 
-        cout << "Building self-field\n" << std::endl;
+        cout << "Building 'self' field\n" << std::endl;
 
         // build self-field
         for (auto data : _j["self"]) {
@@ -83,7 +83,7 @@ namespace gfunction {
         }
 
         cout << "....Finished\n" << std::endl;
-        cout << "Building cross-field\n" << std::endl;
+        cout << "Building 'cross' field\n" << std::endl;
 
         // build cross-field
         for (auto data : _j["cross"]) {
@@ -103,8 +103,6 @@ namespace gfunction {
 
         // soil data
         this->soil.diffusivity = _j["soil"]["diffusivity"];
-
-        cout << "Computing g-functions\n" << std::endl;
         
         // Using Simpson's rule the number of points (n+1) must be odd, therefore an even number of panels is required
         // Starting from i = 0 to i <= NumPanels produces an odd number of points
@@ -142,11 +140,9 @@ namespace gfunction {
                 bh->ptLocs_j.push_back(newPoint);
             }
         }
+    }
 
-        cout << "....Finished\n" << std::endl;
-    };
-
-    double UHFgFunctions::calcResponse(std::vector<double> const dists, double const currTime)
+    double UHFgFunctions::calcResponse(std::vector<double> const &dists, double const &currTime)
     {
         double pointToPointResponse = 0;
         double pointToReflectedResponse = 0;
@@ -226,11 +222,11 @@ namespace gfunction {
             double sum_f = 0;
             int index = 0;
             size_t const lastIndex = bh_i.ptLocs_i.size() - 1;
-            for (auto& thisPoint : bh_i.ptLocs_i) {
+            for (auto &thisPoint : bh_i.ptLocs_i) {
 
                 double f = integral(thisPoint, bh_j, currTime);
 
-                // Integrate using Simpson's
+                // Integrate using Simpson'sa
                 if (index == 0 || index == lastIndex) {
                     sum_f += f;
                 } else if (isEven(index)) {
@@ -278,9 +274,9 @@ namespace gfunction {
                     if ((i_field == 0) && (j_field == 0)) {
                         gfcn_self[idx] += sum_T_j;
                     } else if ((i_field == 1) && (j_field == 1)) {
-                        gfcn_self_to_cross[idx] += sum_T_j;
-                    } else if ((i_field == 0) && (j_field == 1)) {
                         gfcn_cross[idx] += sum_T_j;
+                    } else if ((i_field == 0) && (j_field == 1)) {
+                        gfcn_self_to_cross[idx] += sum_T_j;
                     } else if ((i_field == 1) && (j_field == 0)) {
                         gfcn_cross_to_self[idx] += sum_T_j;
                     }
@@ -291,10 +287,12 @@ namespace gfunction {
         // convert to g-functions
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
             gfcn_self[idx] /= (2 * len_self);
+            gfcn_cross[idx] /= (2 * len_cross);
             gfcn_self_to_cross[idx] /= (2 * len_cross);
-            gfcn_cross[idx] /= (2 * len_self);
-            gfcn_cross_to_self[idx] /= (2 * len_cross);
+            gfcn_cross_to_self[idx] /= (2 * len_self);
         }
+
+        cout << "....Finished\n" << std::endl;
     }
 
     void UHFgFunctions::write_gFunctions(const std::string &fpath) {

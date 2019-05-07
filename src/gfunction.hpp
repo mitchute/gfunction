@@ -45,9 +45,9 @@ namespace gfunction {
         double z = 0;
         double h = 0;
         double d = 0;
-        double dl_i;
-        double dl_ii;
-        double dl_j;
+        double dl_i = 0;
+        double dl_ii = 0;
+        double dl_j = 0;
         std::vector<CartPoint> ptLocs_i;
         std::vector<CartPoint> ptLocs_ii;
         std::vector<CartPoint> ptLocs_j;
@@ -90,7 +90,7 @@ namespace gfunction {
 
         // member functions
         void buildUHF(const json& _j_cross);
-        double calcResponse(std::vector<double> const dists, double const currTime);
+        double calcResponse(std::vector<double> const &dists, double const &currTime);
         double integral(CartPoint const &point_i, Borehole const &bh_j, double const &currTime);
         double doubleIntegral(Borehole const &bh_i, Borehole const &bh_j, double const &currTime);
         void calc_gFunctions();
