@@ -13,10 +13,17 @@ using json = nlohmann::json;
 
 namespace gfunction {
 
-    struct CartPoint {
+     struct CartPoint {
         double x = 0;
         double y = 0;
         double z = 0;
+
+        // constructor
+        CartPoint(int _x, int _y, int _z) {
+            x = _x;
+            y = _y;
+            z = _z;
+        }
 
         // default constructor
         CartPoint() = default;
@@ -106,5 +113,8 @@ namespace gfunction {
         void calc_gFunctions();
         void write_gFunctions(const std::string &fpath);
     };
+
+    std::vector<double> calcDistances(CartPoint const& point_i, CartPoint const& point_j);
+
 }
 #endif // !gfunction
