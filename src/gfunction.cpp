@@ -17,23 +17,19 @@ using json = nlohmann::json;
 
 namespace gfunction {
 
-    inline bool isEven(int const val)
+    inline bool isEven(int const &val)
     {
-        if (val % 2) {
-            return false;
-        } else {
-            return true;
-        }
+        return val % 2;
     }
 
     std::vector<double> linspace(float start, float stop, float step) {
-        std::vector<double> retVect;
+        std::vector<double> returnVector;
         double val = start;
         while (val != stop) {
-            retVect.push_back(val);
+            returnVector.push_back(val);
             val += step;
         }
-        return retVect;
+        return returnVector;
     }
 
     std::vector<double> calcDistances(CartPoint const &point_i, CartPoint const &point_j) {
@@ -122,12 +118,10 @@ namespace gfunction {
         // build "self" field
         cout << "Building self-field" << std::endl;
         selfField.buildField(_j["self"]);
-        cout << "....Finished" << std::endl;
 
         // build "cross" field
         cout << "Building cross-field" << std::endl;
         crossField.buildField(_j["cross"]);
-        cout << "....Finished" << std::endl;
 
         // setup numbers
         int numBH = 0;
