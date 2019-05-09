@@ -280,7 +280,7 @@ namespace gfunction {
         // convert to g-functions
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
             gfcnSelf[idx] /= (2 * selfField.totBHLength);
-            gfcnCross[idx] /= (2 * crossField.totBHLength);
+            gfcnCross[idx] /= (2 * selfField.totBHLength);
         }
 
         cout << "....Finished" << std::endl;

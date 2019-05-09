@@ -45,4 +45,4 @@ target_link_libraries(gfunction_runner gfunction)
 
 set(TEST_SOURCE_FILES tests/main.cpp tests/gfunction.unit.cpp)
 add_executable(gfunction_tests ${TEST_SOURCE_FILES})
-target_link_libraries(gfunction_tests gfunction gtest)
+target_link_libraries(gfunction_tests gfunction gtest gmock)
