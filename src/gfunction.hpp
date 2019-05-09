@@ -106,14 +106,15 @@ namespace gfunction {
         ~UHFgFunctions() = default;
 
         // member functions
-        void buildUHF(const json &_j);
-        double calcResponse(std::vector<double> const &dists, double const &currTime);
-        double integral(CartPoint const &point_i, Borehole const &bh_j, double const &currTime);
-        double doubleIntegral(Borehole const &bh_i, Borehole const &bh_j, double const &currTime);
+        void buildUHF(const json& _j);
+        double calcResponse(std::vector<double> const& dists, double const& currTime);
+        double integral(CartPoint const& point_i, Borehole const& bh_j, double const& currTime);
+        double doubleIntegral(Borehole const& bh_i, Borehole const& bh_j, double const& currTime);
         void calc_gFunctions();
-        void write_gFunctions(const std::string &fpath);
+        void write_gFunctions(const std::string& fpath);
     };
 
+    bool isEven(int const& val);
     std::vector<double> calcDistances(CartPoint const& point_i, CartPoint const& point_j);
 
 }

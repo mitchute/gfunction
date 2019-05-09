@@ -17,9 +17,9 @@ using json = nlohmann::json;
 
 namespace gfunction {
 
-    inline bool isEven(int const &val)
+    bool isEven(int const& val)
     {
-        return val % 2;
+        return !(val % 2);
     }
 
     std::vector<double> linspace(float start, float stop, float step) {
@@ -32,7 +32,7 @@ namespace gfunction {
         return returnVector;
     }
 
-    std::vector<double> calcDistances(CartPoint const &point_i, CartPoint const &point_j) {
+    std::vector<double> calcDistances(CartPoint const& point_i, CartPoint const& point_j) {
 
         std::vector<double> sumValues;
 
@@ -57,7 +57,7 @@ namespace gfunction {
         return returnValues;
     }
 
-    void Field::buildField(const json &_j) {
+    void Field::buildField(const json& _j) {
         
         // build boreholes
         for (auto data : _j) {
@@ -113,7 +113,7 @@ namespace gfunction {
         }
     }
 
-    void UHFgFunctions::buildUHF(const json &_j) {
+    void UHFgFunctions::buildUHF(const json& _j) {
         
         // build "self" field
         cout << "Building self-field" << std::endl;
@@ -139,27 +139,27 @@ namespace gfunction {
         soil.diffusivity = _j["soil"]["diffusivity"];
     }
 
-    double UHFgFunctions::calcResponse(std::vector<double> const &dists, double const &currTime)
+    double UHFgFunctions::calcResponse(std::vector<double> const& dists, double const& currTime)
     {
         double pointToPointResponse = 0;
         double pointToReflectedResponse = 0;
 
         try {
             pointToPointResponse = erfc(dists[0] / (2 * sqrt(soil.diffusivity * currTime))) / dists[0];
-        } catch (const std::exception & e) {
+        } catch (const std::exception&  e) {
             pointToPointResponse = 0;
         }
 
         try {
             pointToReflectedResponse = erfc(dists[1] / (2 * sqrt(soil.diffusivity * currTime))) / dists[1];
-        } catch (const std::exception & e) {
+        } catch (const std::exception&  e) {
             pointToReflectedResponse = 0;
         }
 
         return pointToPointResponse - pointToReflectedResponse;
     }
 
-    double UHFgFunctions::integral(CartPoint const &point_i, Borehole const &bh_j, double const &currTime) {
+    double UHFgFunctions::integral(CartPoint const& point_i, Borehole const& bh_j, double const& currTime) {
 
         // This code could be optimized in a number of ways.
         // The first, most simple way would be to pre-compute the distances from point i to point j, then store them for reuse.
@@ -189,7 +189,7 @@ namespace gfunction {
         return (bh_j.dl_j / 3.0) * sum_f;
     }
 
-    double UHFgFunctions::doubleIntegral(Borehole const &bh_i, Borehole const &bh_j, double const &currTime) {
+    double UHFgFunctions::doubleIntegral(Borehole const& bh_i, Borehole const& bh_j, double const& currTime) {
 
         // Similar optimizations as discussed above could happen here
 
@@ -219,7 +219,7 @@ namespace gfunction {
             double sum_f = 0;
             int index = 0;
             size_t const lastIndex = bh_i.ptLocs_i.size() - 1;
-            for (auto &thisPoint : bh_i.ptLocs_i) {
+            for (auto& thisPoint : bh_i.ptLocs_i) {
 
                 double f = integral(thisPoint, bh_j, currTime);
 
@@ -260,8 +260,8 @@ namespace gfunction {
         // compute self responses
         cout << "Computing self-g-functions" << std::endl;
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
-            for (auto &bh_i : selfField.boreholes) {
-                for (auto &bh_j : selfField.boreholes) {
+            for (auto& bh_i : selfField.boreholes) {
+                for (auto& bh_j : selfField.boreholes) {
                     gfcnSelf[idx] += doubleIntegral(bh_i, bh_j, time[idx]);
                 }
             }
@@ -270,8 +270,8 @@ namespace gfunction {
         // compute cross responses
         cout << "Computing cross-g-functions" << std::endl;
         for (size_t idx = 0; idx < lntts.size(); ++idx) {
-            for (auto &bh_i : selfField.boreholes) {
-                for (auto &bh_j : crossField.boreholes) {
+            for (auto& bh_i : selfField.boreholes) {
+                for (auto& bh_j : crossField.boreholes) {
                     gfcnCross[idx] += doubleIntegral(bh_i, bh_j, time[idx]);
                 }
             }
@@ -286,7 +286,7 @@ namespace gfunction {
         cout << "....Finished" << std::endl;
     }
 
-    void UHFgFunctions::write_gFunctions(const std::string &_fpath) {
+    void UHFgFunctions::write_gFunctions(const std::string& _fpath) {
         ofstream outfile;
         outfile.open(_fpath);
 
