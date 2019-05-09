@@ -48,7 +48,7 @@
 #ifndef FileSystem_hh_INCLUDED
 #define FileSystem_hh_INCLUDED
 
-# include <string>
+#include <string>
 
 namespace FileSystem {
 

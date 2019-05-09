@@ -1,13 +1,13 @@
 // C++ headers
-# include <iostream>
-# include <fstream>
-# include <exception>
-# include <stdio.h>
-# include <vector>
+#include <iostream>
+#include <fstream>
+#include <exception>
+#include <stdio.h>
+#include <vector>
 
 // project headers
-# include "../third_party/nlohmann/json.hpp"
-# include "gfunction.hpp"
+#include "../third_party/nlohmann/json.hpp"
+#include "gfunction.hpp"
 
 // namespaces
 using namespace std;

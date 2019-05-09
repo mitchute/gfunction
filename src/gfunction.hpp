@@ -2,11 +2,11 @@
 #define gfunction_hh_INCLUDED
 
 // C++ headers
-# include <vector>
-# include <stdio.h>
+#include <vector>
+#include <stdio.h>
 
 // project headers
-# include "../third_party/nlohmann/json.hpp"
+#include "../third_party/nlohmann/json.hpp"
 
 // for convenience
 using json = nlohmann::json;

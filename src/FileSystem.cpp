@@ -46,8 +46,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // C++ headers
-# include <stdio.h>
-# include <string>
+#include <stdio.h>
+#include <string>
 
 #ifdef _WIN32
 #include <Shlwapi.h>
