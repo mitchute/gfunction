@@ -67,6 +67,20 @@ TEST(gfunction, test_buildUHF) {
     j["self"][1]["d"] = 0.1;
     j["self"][1]["h"] = 100;
 
+    // bh 3
+    j["cross"][0]["x"] = 5;
+    j["cross"][0]["y"] = 0;
+    j["cross"][0]["z"] = 1;
+    j["cross"][0]["d"] = 0.1;
+    j["cross"][0]["h"] = 100;
+
+    // bh 4
+    j["cross"][1]["x"] = 5;
+    j["cross"][1]["y"] = 5;
+    j["cross"][1]["z"] = 1;
+    j["cross"][1]["d"] = 0.1;
+    j["cross"][1]["h"] = 100;
+
     // soil
     j["soil"]["diffusivity"] = 1E-6;
     
