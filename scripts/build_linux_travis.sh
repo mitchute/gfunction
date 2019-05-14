@@ -3,10 +3,8 @@
 # build the tool
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j 2
-cd ..
-./build/gfunction ./gfunction_tests
+cmake --build ..
+./gfunction_tests
 
 # prep for packaging
 mkdir tmp_build
