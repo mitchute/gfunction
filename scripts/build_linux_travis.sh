@@ -3,6 +3,7 @@
 # build the tool
 mkdir build
 cd build
+cmake ..
 cmake --build ..
 ./gfunction_tests
 
