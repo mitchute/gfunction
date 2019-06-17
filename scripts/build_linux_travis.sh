@@ -8,6 +8,7 @@ cmake --build ..
 ./gfunction_tests
 
 # prep for packaging
+cd ..
 mkdir tmp_build
 cp build/gfunction tmp_build/
 cp -r examples tmp_build/

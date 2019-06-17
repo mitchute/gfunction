@@ -17,7 +17,7 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: AAAAB3NzaC1yc2EAAAADAQABAAACAQDKyQJY/etlFFwbNicobkMWFk2yA1YkqXD8gh4Q7xd8jqW/yfNDtyKh47qS5XQKaNfEyUJVp7uMMgDDNWvLds9tLiEHGEqd1JC1f9IWXVc65qwIOjcS2cCj3eN2ztdAdorTD1HIhXZDFcVedqqqVYSDl6w0CAE5
-    file_glob: true
+  file_glob: true
   file: release/*
   on:
     repo: mitchute/gfunction
