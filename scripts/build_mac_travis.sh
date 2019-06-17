@@ -16,4 +16,4 @@ cp -r examples tmp_build/examples
 
 # create final package
 mkdir release
-tar -zcvf release/gfunction_mac.tar.gz -C tmp_build examples gfunction_runner
+tar -zcvf release/gfunction_Mac.tar.gz -C tmp_build examples gfunction_runner
