@@ -8,10 +8,10 @@ matrix:
     - os: osx
       name: Mac Release
       script: scripts/build_mac_travis.sh
-#    - os: windows
-#      name: Windows Release
-#      install: 7zip
-#      script: scripts/build_windows_travis.sh
+    - os: windows
+      name: Windows Release
+      install: choco install 7zip
+      script: scripts/build_windows_travis.sh
 deploy:
   provider: releases
   file_glob: true
