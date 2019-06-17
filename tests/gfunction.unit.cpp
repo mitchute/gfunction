@@ -33,7 +33,7 @@ TEST(gfunction, test_buildField) {
     Field tst;
     tst.buildField(j["self"]);
 
-    EXPECT_EQ(tst.boreholes.size(), 2);
+    EXPECT_EQ(tst.boreholes.size(), 2u);
     EXPECT_EQ(tst.totBHLength, 200);
     EXPECT_EQ(tst.aveBHLength, 100);
 }
@@ -45,7 +45,7 @@ TEST(gfunction, test_calcDistances) {
 
     auto dists = calcDistances(pt_i, pt_j);
 
-    EXPECT_EQ(dists.size(), 2);
+    EXPECT_EQ(dists.size(), 2u);
     EXPECT_EQ(dists[0], 5);
     EXPECT_EQ(dists[1], 5);
 }
@@ -89,8 +89,8 @@ TEST(gfunction, test_buildUHF) {
     UHFgFunctions tst;
     tst.buildUHF(j);
 
-    EXPECT_EQ(tst.selfField.boreholes.size(), 2);
-    EXPECT_EQ(tst.crossField.boreholes.size(), 2);
+    EXPECT_EQ(tst.selfField.boreholes.size(), 2u);
+    EXPECT_EQ(tst.crossField.boreholes.size(), 2u);
 }
 
 TEST(gfunction, test_calc_gFunctions) {
