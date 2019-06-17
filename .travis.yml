@@ -5,9 +5,9 @@ matrix:
       name: Linux Release
       sudo: required
       script: scripts/build_linux_travis.sh
-#    - os: osx
-#      name: Mac Release
-#      script: scripts/build_mac_travis.sh
+    - os: osx
+      name: Mac Release
+      script: scripts/build_mac_travis.sh
 #    - os: windows
 #      name: Windows Release
 #      install: 7zip
