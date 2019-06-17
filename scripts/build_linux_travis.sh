@@ -4,7 +4,7 @@
 mkdir build
 cd build
 cmake ..
-cmake --build ..
+cmake --build .
 ./gfunction_tests
 
 # prep for packaging
