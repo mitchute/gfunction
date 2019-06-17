@@ -1,8 +1,0 @@
-[run]
-source =
-        src/
-        tests/
-omit =
-        /usr/*
-        /build/*
-        /third_party/*

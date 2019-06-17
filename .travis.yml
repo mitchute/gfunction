@@ -1,82 +1,24 @@
 language: cpp
-
-before_script:
-  - mkdir build
-  - cd build
-
 matrix:
   include:
-
-  #
-  # Clang Tidy
-  #
-  - os: linux
-    name: Clang Tidy
-    env:
-      - TEST="Clang Tidy"
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-          - llvm-toolchain-trusty-4.0
-        packages:
-          - clang-4.0
-          - clang-tidy-4.0
-          - gcc-6
-          - g++-6
-    script:
-      - cmake -DENABLE_CLANG_TIDY=ON -DCMAKE_CXX_COMPILER="g++-6" ..
-      - make
-      - make tidy > output.txt
-      - |
-        if [[ -n $(grep "warning: " output.txt) ]] || [[ -n $(grep "error: " output.txt) ]]; then
-            echo "You must pass the clang tidy checks before submitting a pull request"
-            echo ""
-            grep --color -E '^|warning: |error: ' output.txt
-            exit -1;
-        else
-            echo -e "\033[1;32m\xE2\x9C\x93 passed:\033[0m $1";
-        fi
-
-    #
-    # Coveralls
-    #
-#  - os: linux
-#    name: Linux Release + Coverage
-#    env:
-#      - TEST="Coveralls"
-#    addons:
-#      apt:
-#        sources:
-#          - ubuntu-toolchain-r-test
-#        packages:
-#          - gcc-6
-#          - g++-6
-#    script:
-#      - pip install --upgrade --user git+git://github.com/eddyxu/cpp-coveralls.git
-#      - cmake -DENABLE_COVERAGE=ON -DCMAKE_CXX_COMPILER="g++-6" ..
-#      - cmake --build .
-#      - ./gfunction_tests
-#      - |
-#          coveralls --build-root build --gcov-options '\-lp' \
-#            -e build/third_party \
-
-    #
-    # Mac
-    #
-  - os: osx
-    name: Mac Release
-    script:
-      - cmake ..
-      - cmake --build .
-      - ./gfunction_tests
-
-    #
-    # Windows
-    #
-  - os: windows
-    name: Windows Release
-    script:
-      - cmake ..
-      - cmake --build .
-      - ./Debug/gfunction_tests.exe
+    - os: linux
+      name: Linux Release
+      sudo: required
+      script: scripts/build_linux_travis.sh
+    - os: osx
+      name: Mac Release
+      script: scripts/build_mac_travis.sh
+    - os: windows
+      name: Windows Release
+      install: choco install 7zip
+      script: scripts/build_windows_travis.sh
+deploy:
+  provider: releases
+  file_glob: true
+  skip_cleanup: true
+  api_key:
+    secure: nOMvmj1loJBPVYLZEVFfJej1NWHFgW2hzSE/G/Jysp5FGol2RtWXttmZbAfUrczsYDG4Jm5W7YiNVkeE8CzvxiEq6FQSe+OM1+1Zhji5eUXIvPwdh4jMN2x1BmAakqsj4RNRYUH20DH49TSUn0uaFt6OudLXUExbwDzG1izyG7UOKlc6tgJyG45giyQ0wxEhOuBmwOQXC6FzN+Lc+Qo4FLy1NxRjbRpiB9Frfwz/yjhr0WSSPld3uRNl9K5kiG2+on0eiSZiUgKUin+QALZGrH6jTosxgFw+cHzEC3/FYtdEGea2jMQq6OYeVFv8vNYvgQ/KoYziqW7Db8O4akJUXSYX3EnIXa4cUr66gRbWT44cpA8yQSv8SN8cMrzZMMKLP4C6eqrwRMcdRTfvG3Xe+aOfovLte9Q3sj6gWcg0LFofJoOtui8kUOoLWJN5GfAXXKR4vjjDtFmzha4weDt+Yl8mb0GLd6XvU4PEhcL5q/fg8NgyBK0sMTcCSqDSt0c3zptJlOisofb0E2MqVnbSFVhXyhgy02oVEWdh8qOUDWTJ2sYA6DLYb9vPEPerZUl1hzfCHR4CzIENN25unuLGikJxnfA5Pr+4SmIzfYCl6vITQzZbYgK3UdC+h0a6AhNckmboNMB5Ns3DvG1+3Si3T/tGZtopUrslgj4bQFPgKyY=
+  file: release/*
+  on:
+    repo: mitchute/gfunction
+    tags: true
