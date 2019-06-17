@@ -16,4 +16,4 @@ cp -r examples tmp_build/examples
 
 # create final package
 mkdir release
-/C/Program\ Files/7-zip/7z/exe a release/gfunction_Windows.zip ./tmp_build/*
+/C/Program\ Files/7-zip/7z.exe a release/gfunction_Windows.zip ./tmp_build/*
